@@ -2,6 +2,8 @@
 {% block title %}{{ product.title }} | {% endblock %}
 {% block content %}
     <div id="productapp">
+        <img src="/{{ product.image }}">
+        <hr>
         <h1 class="title">{{ product.title }}</h1>
         <h2 class="subtitle">${{ product.price }}</h2>
         {% if product.description %}
