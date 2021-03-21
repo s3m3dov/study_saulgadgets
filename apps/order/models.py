@@ -9,9 +9,12 @@ class Order(models.Model):
     zipcode = models.CharField(max_length=100)
     place = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
+
     paid = models.BooleanField(default=False)
     paid_amount = models.FloatField(blank=True, null=True)
+    used_coupon = models.CharField(max_length=50, blank=True, null=True)
     payment_intent = models.CharField(max_length=255)
+
 
     def __str__(self):
         return '%s' % self.first_name

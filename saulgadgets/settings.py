@@ -35,7 +35,8 @@ INSTALLED_APPS = [
     'apps.core',
     'apps.store',
     'apps.cart',
-    'apps.order'
+    'apps.order',
+    'apps.coupon',
 ]
 
 MIDDLEWARE = [
