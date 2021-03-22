@@ -17,11 +17,18 @@ def webhook(request):
             json.loads(payload), stripe.api_key
         )
     except ValueError as e:
-        return HttpResponse(status = 400)
+        return HttpResponse(status=400)
 
     if event.type == 'payment_intent.succeeded':
         payment_intent = event.data.object
         order = Order.objects.get(payment_intent = payment_intent.id)
         order.paid = True
         order.save()
-    return HttpResponse(status = 400)
+
+        # Decrement the number of available products by quantity for each product after ordered
+        for item in order.items.all():
+            product = item.product
+            product.num_available -= item.quantity
+            product.save()
+
+    return HttpResponse(status=200)
