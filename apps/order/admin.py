@@ -1,6 +1,8 @@
 import datetime
 from django.contrib import admin
 from django.urls import reverse
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
 # Import Models
 from .models import Order, OrderItem
 
@@ -13,6 +15,9 @@ def admin_order_shipped(modeladmin, request, queryset):
         order.shipped_date = datetime.datetime.now()
         order.status = Order.SHIPPED
         order.save()
+        # Send html page(order sent) as mail
+        html = render_to_string('order_sent.html', {'order': order})
+        send_mail('Order sent', 'Your order has been sent!', 'noreply@saulgadgets.com', ['mail@saulgadgets.com', order.email], fail_silently=False, html_message=html)
     return 
 admin_order_shipped.short_descrption = 'Set shipped'
 
