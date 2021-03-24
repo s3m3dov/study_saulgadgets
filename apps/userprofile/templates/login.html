@@ -1,14 +1,36 @@
 {% extends 'base.html' %}
-
 {% block content %}
-    <h1 class="title">Good to see you again</h1>
-    <form method="post" action=".">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <div class="field">
-            <div class="control">
-                <div class="button is-success">Login</div>
+<div class="columns">
+    <div class="column is-6 is-offset-3">
+        <h1 class="title">Good to see you again</h1>
+        <form method="post" action=".">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+            <div class="field">
+                <label for="username">Username</label>
+                <div class="control">
+                    <input type="text" name="username" id="id_username" class="input">
+                </div>
             </div>
-        </div>
-    </form>
+            <div class="field">
+                <label for="password">Password</label>
+                <div class="control">
+                    <input type="password" name="password" id="id_password" class="input">
+                </div>
+            </div>
+
+            {% if form.erors %}
+                <div class="notification is-danger">
+                    Your username and password didn't match! Please try again.
+                </div>
+            {% endif %}
+
+            <div class="field">
+                <div class="control">
+                    <div class="button is-success">Login</div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}
