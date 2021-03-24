@@ -6,22 +6,26 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '(*0kk0bq8dgfj-10x*m1(g1szz4vo071+$_n_d68-9$6war=ar'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
+# Production Security Settings
 ALLOWED_HOSTS = ['*']
+SECRET_KEY = '(*0kk0bq8dgfj-10x*m1(g1szz4vo071+$_n_d68-9$6war=ar'
+#! SECURITY WARNING: keep the secret key used in production secret!
+DEBUG = True
+#! SECURITY WARNING: don't run with debug turned on in production!
 
+# Defined Authentication Settings
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'cart'
+LOGOUT_REDIRECT_URL = 'frontpage'
+
+# Email Server Settings
 EMAIL_HOST = 'localhost' 
 EMAIL_PORT = 1025
 
-# Cart
+# Cart Sessions Settings
 SESSION_COOKIE_AGE = 86400
 CART_SESSION_ID = 'cart'
 
@@ -42,6 +46,7 @@ INSTALLED_APPS = [
     'apps.cart',
     'apps.order',
     'apps.coupon',
+    'apps.userprofile',
 ]
 
 MIDDLEWARE = [
@@ -80,7 +85,6 @@ WSGI_APPLICATION = 'saulgadgets.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -91,7 +95,6 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -107,24 +110,16 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
-
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
-
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static'

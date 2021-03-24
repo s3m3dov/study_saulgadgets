@@ -50,6 +50,10 @@
                 <input type="text" placeholder="Coupon code" v-model="coupon_code" name="" id=""><br>
                 <button @click="applyCoupon()">Apply</button>
             </div>
+            {% if not request.user.is_authenticated %}
+                <p>Continue as guest or <a href="{% url 'login' %}">Login</a>/<a href="{% url 'signup' %}">Signup</a>.</p>
+                <hr>
+            {% endif %}
             <form action="" v-on:submit.prevent="buy()">
                 <div class="field">
                     <div class="control">
@@ -121,9 +125,9 @@
         data() {
             return {
                 errors: [],
-                first_name: '',
-                last_name: '',
-                email: '',
+                first_name: '{{ first_name }}',
+                last_name: '{{ last_name }}',
+                email: '{{ email }}',
                 address: '',
                 zipcode: '',
                 place: '',
