@@ -9,6 +9,7 @@ from apps.cart.webhook import webhook
 from apps.core.views import frontpage, contact, about
 from apps.store.views import  product_detail, category_detail, search
 from apps.cart.views import cart_detail, success
+from apps.order.views import admin_order_pdf
 from apps.userprofile.views import signup, myaccount
 
 from apps.coupon.api import api_can_use
@@ -28,6 +29,7 @@ urlpatterns = [
     path('hooks/', webhook, name='webhook'),
     path('cart/success/', success, name='success'),
     path('admin/', admin.site.urls),
+    path('admin/admin_order_pdf/<int:order_id>', admin_order_pdf, name='admin_order_pdf'),
     
     # Auth
     path('myaccount/', myaccount, name='myaccount'),
