@@ -1,0 +1,24 @@
+<div class="columns is-multiline">
+    {% for prod in list_prods %}
+        <div class="column is-3">
+            <div class="card">
+                <div class="card-image">
+                    <figure class="image">
+                        <img src="{{ prod.thumbnail.url }}" alt="">
+                    </figure>
+                </div>
+                <div class="card-content">
+                    <div class="media">
+                        <div class="media-content">
+                            <p class="title is-4">{{ prod.title }}</p>
+                            <p class="subtitle is-6">${{ prod.price }}</p>
+                        </div>
+                    </div>
+                </div>
+                <footer class="card-footer">
+                    <a href="{% url 'product_detail' prod.category.slug prod.slug %}" class="card-footer-item">View</a>
+                </footer>
+            </div>
+        </div>
+    {% endfor %}
+</div>

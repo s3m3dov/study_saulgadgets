@@ -77,6 +77,13 @@
                 The product was added to cart!
             </div>
         </article>
+
+        <hr>
+        <h2 class="subtile">Related Products</h2>
+        <!--Iterating over related products by using reusable html/django code-->
+        {% with related_products as list_prods %}
+            {% include "parts/product_list.html" %}
+        {% endwith %}
     </div>
 {% endblock %}
 
