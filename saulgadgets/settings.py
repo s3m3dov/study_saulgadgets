@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'apps.order',
     'apps.coupon',
     'apps.userprofile',
+    'apps.newsletter',
 ]
 
 MIDDLEWARE = [
