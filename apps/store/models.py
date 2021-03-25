@@ -3,6 +3,7 @@ from django.core.files import File
 from django.db import models
 from PIL import Image
 from django.db.models.deletion import CASCADE
+from django.contrib.auth.models import User
 
 
 class Category(models.Model):
@@ -47,6 +48,14 @@ class Product(models.Model):
     
     def get_absolute_url(self):
         return '/%s/%s/' % (self.category.slug, self.slug)
+
+    def get_rating(self):
+        total = sum(int(review['stars']) for review in self.reviews.values())
+
+        if self.reviews.count() > 0:
+            return total / self.reviews.count()
+        else:
+            return 0
     
     def make_thumbnail(self, image, size=(300, 200)):
         img = Image.open(image)
@@ -75,3 +84,14 @@ class ProductImage(models.Model):
         img.save(thumb_io, 'JPEG', quality=85)
         thumbnail = File(thumb_io, name=image.name)
         return thumbnail
+
+
+class ProductReview(models.Model):
+    product = models.ForeignKey(Product, related_name='reviews', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='reviews', on_delete=models.CASCADE)
+    content = models.TextField(blank=True, null=True)
+    stars = models.IntegerField()
+    date_added = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.product} - {self.stars} | {self.user}'

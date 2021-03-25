@@ -16,6 +16,14 @@
         <hr>
         <h1 class="title">{{ product.title }}</h1>
         <h2 class="subtitle">${{ product.price }}</h2>
+        <h2 class="subtitle">
+            <strong>Stars: </strong>
+            {% if product.get_rating == 0 %}
+                No Rating
+            {% else %}
+                {{ product.get_rating|floatformat:1 }}
+            {% endif %}
+        </h2>
         {% if product.description %}
             <p>{{ product.description }}</p>
         {% endif %}
@@ -84,6 +92,58 @@
         {% with related_products as list_prods %}
             {% include "parts/product_list.html" %}
         {% endwith %}
+
+        <hr>
+        <h2 class="subtitle">Reviews</h2>
+        <div class="reviews-wrapper">
+            {% for review in product.reviews.all %}
+                <div class="notification space-below">
+                    <p>
+                        <storng>Date:</storng> {{ review.date_added | date:"Y-m-d" }},
+                        <strong>Stars:</strong> {{ review.stars }}
+                    </p>
+                    {{ review.content }}
+                </div>
+            {% empty %}
+                <div class="notification space-below">
+                    No reviews yet...
+                </div>
+            {% endfor %}
+        </div>
+        <div class="notification space-below">
+            {% if request.user.is_authenticated %}
+                <form method="POST" action="." >
+                    {% csrf_token %}
+                    <div class="field">
+                        <label for="stars">Stars</label>
+                        <div class="control">
+                            <div class="select">
+                                <select name="stars" id="">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label for="content">Content</label>
+                        <div class="control">
+                            <textarea name="content" id="" class="textarea"></textarea>
+                        </div>
+                    </div>
+                    <div class="fields">
+                        <div class="control">
+                            <button class="button button is-success">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            {% else %}
+                <p>Please sign in to add review!</p>
+            {% endif %}
+        </div>
     </div>
 {% endblock %}
 

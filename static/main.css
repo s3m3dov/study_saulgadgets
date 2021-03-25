@@ -17,3 +17,7 @@ form ul {
 .newsletter-wrapper .notification {
     margin-top: 20px;
 }
+
+.notification.space-below {
+    margin-bottom: 20px;
+}
