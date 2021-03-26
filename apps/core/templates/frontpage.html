@@ -1,9 +1,22 @@
 {% extends 'base.html' %}
 {% block title %}Welcome | {% endblock %}
 {% block content %}
-    <h1 class="title">The Frontpage</h1>
+    <h2 class="subtitle has-text-centered">Featured products</h2>
     <!--Iterating over featured products by using reusable html/django code-->
     {% with products as list_prods %}
         {% include "parts/product_list.html" %}
     {% endwith %}
+
+    <hr>
+    <div class="featured-categories">
+        {% for category in featured_categories %}
+            <h2 class="subtitle has-text-centered">{{category.title}}</h2>
+            <!--Iterating over featured products by using reusable html/django code-->
+            {% with category.products.all|slice:":4" as list_prods %}
+                {% include "parts/product_list.html" %}
+            {% endwith %}
+        {% empty %}
+        
+        {% endfor %}
+    </div>
 {% endblock %}
