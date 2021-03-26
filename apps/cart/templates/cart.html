@@ -8,10 +8,10 @@
             <div class="table">
                 <table class="table is-fullwidth is-striped">
                     <thead>
+                        <th>Image</th>
                         <th>Product</th>
                         <th>Quantity</th>
                         <th>Price</th>
-                        <th></th>
                         <th></th>
                     </thead>
                     <tbody>
@@ -40,9 +40,9 @@
                     <tfoot>
                         <tr>
                             <td>Total cost:</td>
+                            <td></td>
                             <td>[[ numItems ]]</td>
                             <td>[[ totalCost ]]</td>
-                            <td></td>
                             <td></td>
                         </tr>
                         <tr v-if="coupon_value">
@@ -65,7 +65,7 @@
                         <button @click="applyCoupon()" class="button is-success">Apply</button>
                     </div>
                 </div>
-                <div class="notification" v-if="showCouponCodeError is-warning">
+                <div class="notification is-warning" v-if="showCouponCodeError">
                     <p>The coupon code is not valid!</p>
                 </div>
                 <hr>
@@ -95,6 +95,12 @@
                             <label for="email">Email</label>
                             <div class="control">
                                 <input type="text" name="email" v-model="email" class="input">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label for="email">Phone</label>
+                            <div class="control">
+                                <input type="text" name="phone" v-model="phone" class="input">
                             </div>
                         </div>
                     </div>
@@ -157,9 +163,10 @@
                 first_name: '{{ first_name }}',
                 last_name: '{{ last_name }}',
                 email: '{{ email }}',
-                address: '',
-                zipcode: '',
-                place: '',
+                address: '{{ address }}',
+                zipcode: '{{ zipcode }}',
+                place: '{{ place }}',
+                phone: '{{ phone }}',
                 products: [{{ productstring|safe }}],
                 coupon_value: 0,
                 coupon_code: '',
@@ -208,6 +215,7 @@
                     'first_name': this.first_name,
                     'last_name': this.last_name,
                     'email': this.email,
+                    'phone': this.phone,
                     'address': this.address,
                     'zipcode': this.zipcode,
                     'place': this.place,
@@ -220,6 +228,8 @@
                     this.errors.push('Last name is empty');
                 } if (data.email === '') {
                     this.errors.push('Email is empty');
+                }  if (data.phone === '') {
+                    this.errors.push('Phone is empty');
                 } if (data.address === '') {
                     this.errors.push('Address is empty');
                 } if (data.zipcode === '') {

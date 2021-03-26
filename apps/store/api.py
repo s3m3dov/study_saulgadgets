@@ -79,11 +79,12 @@ def api_checkout(request):
     first_name = data['first_name']
     last_name = data['last_name']
     email = data['email']
+    phone = data['phone']
     address = data['address']
     zipcode = data['zipcode']
     place = data['place']
     #--------------------
-    order_id = checkout(request, first_name, last_name, email, address, zipcode, place)
+    order_id = checkout(request, first_name, last_name, email, phone, address, zipcode, place)
     total_price = 0.00
     for item in cart:
         product = item['product']

@@ -27,7 +27,6 @@
         {% if product.description %}
             <p>{{ product.description }}</p>
         {% endif %}
-        <h2 class="subtitle">Add to Cart</h2>
         {% if product.variants.all %}
             <div class="column is-6">
                 <table class="table is-fullwidth">
@@ -79,6 +78,16 @@
                     </tbody>
                 </table>
             </div>
+        {% else %}
+            {% if product.in_cart %}
+                <p>Already in cart!</p>
+            {% else %}
+                {% if product.num_available > 0 %}
+                    <button @click="addToCart({{ product.id }})" class="button is-success">Add to cart</button>
+                {% else %}
+                    <p>The product is out of stock!</p>
+                {% endif %}
+            {% endif %}
         {% endif %}
         <article class="message is-success" v-if="showMessage">
             <div class="messge-body">

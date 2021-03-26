@@ -30,7 +30,7 @@ class Product(models.Model):
     description = models.TextField(blank=True, null=True)
     price = models.FloatField()
     is_featured = models.BooleanField(default=False)
-    article = models.IntegerField()
+    article = models.IntegerField(blank=True, null=True)
     num_available = models.IntegerField(default=20)
     image = models.ImageField(upload_to='uploads/', blank=True, null=True)
     thumbnail = models.ImageField(upload_to='uploads/', blank=True, null=True)
@@ -71,6 +71,9 @@ class ProductImage(models.Model):
     product = models.ForeignKey(Product, related_name='images', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='uploads/', blank=True, null=True)
     thumbnail = models.ImageField(upload_to='uploads/', blank=True, null=True)
+
+    def __str__(self):
+        return f'{self.product.title} - Image'
 
     def save(self, *args, **kwargs):
         self.thumbnail = self.make_thumbnail(self.image)

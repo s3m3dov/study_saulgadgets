@@ -2,7 +2,7 @@ form .helptext {
     font-size: 12px;
     color: #888888;
 }
-form ul {
+form ul:not(.errorlist) {
     display: none;
 }
 
