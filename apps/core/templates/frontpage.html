@@ -15,8 +15,6 @@
             {% with category.products.all|slice:":4" as list_prods %}
                 {% include "parts/product_list.html" %}
             {% endwith %}
-        {% empty %}
-        
         {% endfor %}
     </div>
 {% endblock %}
