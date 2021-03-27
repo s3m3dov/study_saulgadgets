@@ -1,6 +1,12 @@
+# Stripe Payment Keys
 STRIPE_API_KEY_PUBLISHABLE = "pk_test_51IWZgUHCGQv2kDWZiGaTNIsrKtEfoNQW23hLhCQ8RnmWBBr1rYFP3bkkv7oi9aJnxe73vW5gN2c5RY2V1XTGSwyX00PkarATdm"
 STRIPE_API_KEY_HIDDEN = "sk_test_51IWZgUHCGQv2kDWZhswpEMdIG9DQp1Ltz75zE4zYlWCc3WdZCpz4c1BtI6pkYjk3h55P0oKdlIc0lybQpTzvcEGw00C3CWLjqZ"
 
+# Razorpay Payment Keys
+RAZORPAY_API_KEY_PUBLISHABLE = "rzp_test_z5vfzrbIZb9N3N"
+RAZORPAY_API_KEY_HIDDEN = "0HtDa3tlEGdPze0EyHWtr1GD"
+
+# * ----------------------------------------- * #
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.

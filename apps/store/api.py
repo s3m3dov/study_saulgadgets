@@ -1,13 +1,42 @@
-import json, stripe
-from django.http import JsonResponse
+import json, stripe, razorpay
+from django.http import JsonResponse, HttpResponse
 from django.conf import settings
+from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import get_object_or_404, redirect
 
 from apps.cart.cart import Cart
 from apps.order.utils import checkout
+from apps.order.views import render_to_pdf
 from .models import Product
 from apps.order.models import Order
 from apps.coupon.models import Coupon
+
+
+# Functions
+def validate_payment(request):
+    # Get data
+    data = json.loads(request.body)
+    razorpay_payment_id = data['razorpay_payment_id']
+    razorpay_order_id = data['razorpay_order_id']
+    razorpay_signature = data['razorpay_signature']
+    # Auth
+    client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY_PUBLISHABLE, settings.RAZORPAY_API_KEY_HIDDEN))
+    # Params dict
+    params_dict = {
+        'razorpay_payment_id': razorpay_payment_id,
+        'razorpay_order_id': razorpay_order_id,
+        'razorpay_signature': razorpay_signature
+    }
+    # Verify
+    res = client.utility.verify_payment_signature(params_dict)
+    print(res) # Print Error
+    # Create Order
+    if not res:
+        order = Order.objects.get(payment_intent=razorpay_order_id)
+        order.paid = True
+        order.save()
+    # Return
+    return JsonResponse({'success': True})
 
 def create_checkout_session(request):
     data = json.loads(request.body)
@@ -40,23 +69,26 @@ def create_checkout_session(request):
             'quantity': item['quantity']
         }
         items.append(obj)
+    
+    # * Gateway Part *
+    # Declare Variables (Get Gateway)
+    gateway = data['gateway']
+    session = ''
+    order_id = ''
 
-    session = stripe.checkout.Session.create(
-        payment_method_types = ['card'],
-        line_items = items,
-        mode = 'payment',
-        success_url = 'http://127.0.0.1:8000/cart/success/',
-        cancel_url = 'http://127.0.0.1:8000/cart/'
-    )
-    # Create Order
-    first_name = data['first_name']
-    last_name = data['last_name']
-    email = data['email']
-    address = data['address']
-    zipcode = data['zipcode']
-    place = data['place']
-    payment_intent = session.payment_intent
-    order_id = checkout(request, first_name, last_name, email, address, zipcode, place)
+    # ? Stripe ?
+    if gateway == 'stripe':
+        session = stripe.checkout.Session.create(
+            payment_method_types = ['card'],
+            line_items = items,
+            mode = 'payment',
+            success_url = 'http://127.0.0.1:8000/cart/success/',
+            cancel_url = 'http://127.0.0.1:8000/cart/'
+        )
+        payment_intent = session.payment_intent
+
+    
+    # * Price *
     total_price = 0.00
     for item in cart:
         product = item['product']
@@ -64,8 +96,22 @@ def create_checkout_session(request):
     paid = True
     if coupon_value > 0:
         total_price *= coupon_value / 100
+    
+    # ? Razorpay ?
+    if gateway == 'razorpay':
+        order_amount = total_price * 100
+        order_currency = 'INR'
+        client = razorpay.Client(auth=(settings.RAZORPAY_API_KEY_PUBLISHABLE, settings.RAZORPAY_API_KEY_HIDDEN))
+        data = {
+            'amount': order_amount,
+            'currency': order_currency
+        }
+        payment_intent = client.order.create(data=data)
+
+    # * Create Order *
+    order_id = checkout(request, data['first_name'], data['last_name'], data['email'], data['address'], data['zipcode'], data['place'], data['phone'])
     order = Order.objects.get(pk=order_id)
-    order.payment_intent = payment_intent
+    order.payment_intent = payment_intent['id']
     order.paid_amount = cart.get_total_cost()
     order.used_coupon = coupon_code
     order.save()
@@ -85,6 +131,7 @@ def api_checkout(request):
     place = data['place']
     #--------------------
     order_id = checkout(request, first_name, last_name, email, phone, address, zipcode, place)
+    # * Price *
     total_price = 0.00
     for item in cart:
         product = item['product']

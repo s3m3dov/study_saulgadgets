@@ -2,7 +2,6 @@ import json, stripe
 from django.conf import settings
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 
@@ -51,7 +50,5 @@ def webhook(request):
             name = f'order_{order.id}.pdf'
             msg.attach(name, pdf, 'application/pdf')
         msg.send()
-        """html = render_to_string('order_confirmation.html', {'order': order})
-        send_mail('Order confirmation', 'Your order has been confirmed!', 'noreply@saulgadgets.com', ['mail@saulgadgets.com', order.email], fail_silently=False, html_message=html)"""
 
     return HttpResponse(status=200)
