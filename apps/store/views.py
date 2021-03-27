@@ -8,14 +8,26 @@ from .models import Product, Category, ProductReview
 
 def search(request):
     query = request.GET.get('query')
-    products = Product.objects.filter(Q(title__icontains=query) | Q(description__icontains=query) | Q(article__icontains=query))
-    # Searchs for products which title or descripttion matches with query
-
+    instock = request.GET.get('instock')
+    price_from = request.GET.get('price_from', 0)
+    price_to = request.GET.get('price_to', 100000)
+    sorting = request.GET.get('sorting', '-date_added')
+    # Retrieve Products if title/description/article matches with search term
+    products = Product.objects.filter(Q(title__icontains=query) | Q(description__icontains=query) | Q(article__icontains=query)).filter(price__gte=price_from).filter(price__lte=price_to)
+    # Retieve Products if instock checked (Advanced Search)
+    if instock:
+        products = products.filter(num_available__gte=1)
+    
+    # context for templated
     context = {
         'query': query,
-        'products': products, 
+        'products': products.order_by(sorting), 
+        'instock': instock, 
+        'price_from': price_from, 
+        'price_to': price_to,
+        'sorting': sorting
     }
-
+    # return
     return render(request, 'search.html', context)
 
 def product_detail(request, category_slug, slug):
