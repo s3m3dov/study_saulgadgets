@@ -11,6 +11,8 @@ from .models import Product
 from apps.order.models import Order
 from apps.coupon.models import Coupon
 
+from .utils import decrement_product_quantity, send_order_confirmation
+
 
 # Functions
 def validate_payment(request):
@@ -35,6 +37,8 @@ def validate_payment(request):
         order = Order.objects.get(payment_intent=razorpay_order_id)
         order.paid = True
         order.save()
+        decrement_product_quantity(order)
+        send_order_confirmation(order)
     # Return
     return JsonResponse({'success': True})
 
@@ -48,11 +52,11 @@ def create_checkout_session(request):
         if coupon.can_use():
             coupon_value = coupon.value
             coupon.use()
+    
     # Cart & Checkout
     cart = Cart(request)
-    stripe.api_key = settings.STRIPE_API_KEY_HIDDEN
-
     items = []
+
     for item in cart:
         product = item['product']
         price = int(float(product.price) * 100) 
@@ -75,9 +79,11 @@ def create_checkout_session(request):
     gateway = data['gateway']
     session = ''
     order_id = ''
+    payment_intent = ''
 
     # ? Stripe ?
     if gateway == 'stripe':
+        stripe.api_key = settings.STRIPE_API_KEY_HIDDEN
         session = stripe.checkout.Session.create(
             payment_method_types = ['card'],
             line_items = items,
@@ -93,7 +99,6 @@ def create_checkout_session(request):
     for item in cart:
         product = item['product']
         total_price += (float(product.price) * int(item['quantity']))
-    paid = True
     if coupon_value > 0:
         total_price *= coupon_value / 100
     
@@ -111,39 +116,16 @@ def create_checkout_session(request):
     # * Create Order *
     order_id = checkout(request, data['first_name'], data['last_name'], data['email'], data['address'], data['zipcode'], data['place'], data['phone'])
     order = Order.objects.get(pk=order_id)
-    order.payment_intent = payment_intent['id']
+    # Payment Intent 
+    if gateway == 'razorpay':
+        order.payment_intent = payment_intent['id']
+    else:
+        order.payment_intent = payment_intent
     order.paid_amount = cart.get_total_cost()
     order.used_coupon = coupon_code
     order.save()
     cart.clear()
     return JsonResponse({'session': session})
-
-def api_checkout(request):
-    cart = Cart(request)
-    data = json.loads(request.body)
-    json_response = {'success': True}
-    first_name = data['first_name']
-    last_name = data['last_name']
-    email = data['email']
-    phone = data['phone']
-    address = data['address']
-    zipcode = data['zipcode']
-    place = data['place']
-    #--------------------
-    order_id = checkout(request, first_name, last_name, email, phone, address, zipcode, place)
-    # * Price *
-    total_price = 0.00
-    for item in cart:
-        product = item['product']
-        total_price += (float(product.price) * int(item['quantity']))
-    paid = True
-    if paid == True:
-        order = Order.objects.get(pk=order_id)
-        order.paid = True
-        order.paid_amount = cart.get_total_cost()
-        order.save()
-        
-    return JsonResponse(json_response)
 
 def api_add_to_cart(request):
     data = json.loads(request.body)

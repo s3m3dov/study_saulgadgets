@@ -14,7 +14,7 @@ from apps.userprofile.views import signup, myaccount
 
 from apps.coupon.api import api_can_use
 from apps.newsletter.api import api_add_subscriber
-from apps.store.api import api_add_to_cart, api_remove_from_cart, api_checkout, create_checkout_session, validate_payment
+from apps.store.api import api_add_to_cart, api_remove_from_cart, create_checkout_session, validate_payment
 
 from .sitemaps import StaticViewSitemap, CategorySitemap, ProductSitemap
 
@@ -46,7 +46,6 @@ urlpatterns = [
     path('api/validate_payment/', validate_payment, name='validate_payment'),
     path('api/add_to_cart/', api_add_to_cart, name='api_add_to_cart'),
     path('api/remove_from_cart/', api_remove_from_cart, name='api_remove_from_cart'),
-    path('api/checkout/', api_checkout, name='api_checkout'),
     path('api/add_subscriber/', api_add_subscriber, name='api_add_subscriber'),
     
     # Store

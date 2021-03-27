@@ -152,8 +152,8 @@
 {% endblock %}
 
 {% block scripts %}
-<script type="application/javascript" <script src="https://js.stripe.com/v3/"></script>
-<script type="application/javascript" <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script type="application/javascript" src="https://js.stripe.com/v3/"></script>
+<script type="application/javascript" src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
     var productapp = new Vue({
         el: '#cartapp',
@@ -191,6 +191,25 @@
             }
         },
         methods: {
+            validateForm() {
+                this.errors = [];
+                if (this.first_name === '') {
+                    this.errors.push('First name is empty');
+                } if (this.last_name === '') {
+                    this.errors.push('Last name is empty');
+                } if (this.email === '') {
+                    this.errors.push('Email is empty');
+                }  if (this.phone === '') {
+                    this.errors.push('Phone is empty');
+                } if (this.address === '') {
+                    this.errors.push('Address is empty');
+                } if (this.zipcode === '') {
+                    this.errors.push('Zipcode is empty');
+                } if (this.place === '') {
+                    this.errors.push('Place is empty');
+                } 
+                return this.errors.length;
+            },
             applyCoupon() {
                 if (this.coupon_code !== '') {
                     fetch('/api/can_use/?coupon_code=' + this.coupon_code, {
@@ -212,7 +231,7 @@
                     this.showCouponCodeError = true
                 }
             },
-            buy (gateway) {
+            buy(gateway) {
                 var data = {
                     'first_name': this.first_name,
                     'last_name': this.last_name,
@@ -224,23 +243,9 @@
                     'coupon_code': this.coupon_code,
                     'gateway': gateway
                 };
-                this.errors = [];
-                if (data.first_name === '') {
-                    this.errors.push('First name is empty');
-                } if (data.last_name === '') {
-                    this.errors.push('Last name is empty');
-                } if (data.email === '') {
-                    this.errors.push('Email is empty');
-                }  if (data.phone === '') {
-                    this.errors.push('Phone is empty');
-                } if (data.address === '') {
-                    this.errors.push('Address is empty');
-                } if (data.zipcode === '') {
-                    this.errors.push('Zipcode is empty');
-                } if (data.place === '') {
-                    this.errors.push('Place is empty');
-                } 
-                if (this.errors.length === 0) {
+                
+                if (this.validateForm() === 0) {
+                    // Stripe Gateway
                     if (gateway === 'stripe') {
                         var stripe = Stripe('{{ pub_key }}');
                         fetch('/api/create_checkout_session/', {
@@ -266,7 +271,9 @@
                         .catch(function(error) {
                             console.log('Error:', error)
                         });
-                    } else if (gateway === 'razorpay') {
+                    } 
+                    // Razorpay Gateway
+                    else if (gateway === 'razorpay') {
                         fetch('/api/create_checkout_session/', {
                             method: 'POST',
                             headers: {
@@ -280,24 +287,25 @@
                             return response.json()
                         })
                         .then(function(result) {
-                            // Declare and get value of some variables
+                            // Declare variables
                             const order_id = result.order.id;
                             const amount = result.order.amount;
                             // Options
                             var options = {
-                                'key': '{{ pousb_key_razorpay }}',
+                                'key': '{{ pub_key_razorpay }}',
                                 'amount': amount,
                                 'currency': 'INR',
-                                'name': 'Cublya',
-                                'description': 'Cublya is coming!',
+                                'name': 'Saul Gadgets',
+                                'description': 'A cool gadget store',
                                 'order_id': order_id,
                                 'handler': function(res) {
                                     console.log('Handler');
+                                    
                                     fetch('/api/validate_payment/', {
                                         method: 'POST',
                                         headers: {
                                             'Content-Type': 'application/json',
-                                            'X-CSRFToken': '{{ crsf_token }}'
+                                            'X-CSRFToken': '{{ csrf_token }}'
                                         },
                                         credentials: 'same-origin',
                                         body: JSON.stringify({
@@ -330,7 +338,7 @@
                             rzp.open();
                         })
                         .catch(function(error) {
-                            console.log('Error', error)
+                            console.log('Error', error);
                         });
                     }
                 }
