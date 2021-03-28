@@ -60,8 +60,8 @@
                         <tr>
                             <td>
                                 <figure class="image is-48x48">
-                                    {% if product.thumbnail.url %}
-                                        <img src="{{ product.thumbnail.url }}">
+                                    {% if product.get_thumbnail %}
+                                        <img src="{{ product.get_thumbnail }}">
                                     {% endif %}
                                 </figure>
                             </td>
@@ -82,8 +82,8 @@
                             <tr>
                                 <td>
                                     <figure class="image is-48x48">
-                                        {% if variant.thumbnail.url %}
-                                            <img src="{{ variant.thumbnail.url }}">
+                                        {% if variant.get_thumbnail %}
+                                            <img src="{{ variant.get_thumbnail }}">
                                         {% endif %}
                                     </figure>
                                 </td>

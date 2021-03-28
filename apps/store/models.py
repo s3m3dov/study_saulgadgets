@@ -34,6 +34,8 @@ class Product(models.Model):
     is_featured = models.BooleanField(default=False)
     article = models.IntegerField(blank=True, null=True)
     num_available = models.IntegerField(default=20)
+    num_visits = models.IntegerField(default=0)
+    last_visit = models.DateTimeField(blank=True, null=True)
     image = models.ImageField(upload_to='uploads/', blank=True, null=True)
     thumbnail = models.ImageField(upload_to='uploads/', blank=True, null=True)
     date_added = models.DateTimeField(auto_now_add=True)
@@ -43,13 +45,19 @@ class Product(models.Model):
 
     def __str__(self):
         return self.title
-
-    def save(self, *args, **kwargs):
-        self.thumbnail = self.make_thumbnail(self.image)
-        super().save(*args, **kwargs)
     
     def get_absolute_url(self):
         return '/%s/%s/' % (self.category.slug, self.slug)
+
+    def get_thumbnail(self):
+        if self.thumbnail:
+            return self.thumbnail.url
+        elif self.image:
+            self.thumbnail = self.make_thumbnail(self.image)
+            self.save()
+            return self.thumbnail.url
+        else:
+            return ''
 
     def get_rating(self):
         total = sum(int(review['stars']) for review in self.reviews.values())
@@ -67,6 +75,12 @@ class Product(models.Model):
         img.save(thumb_io, 'JPEG', quality=85)
         thumbnail = File(thumb_io, name=image.name)
         return thumbnail
+
+    """
+    def save(self, *args, **kwargs):
+        self.thumbnail = self.make_thumbnail(self.image)
+        super().save(*args, **kwargs)
+    """
 
 
 class ProductImage(models.Model):

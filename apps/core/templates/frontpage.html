@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}Welcome | {% endblock %}
 {% block content %}
+    <!--* Featured Products *-->
     <h2 class="subtitle has-text-centered">Featured products</h2>
     <!--Iterating over featured products by using reusable html/django code-->
     {% with products as list_prods %}
@@ -8,13 +9,30 @@
     {% endwith %}
 
     <hr>
+    <!--* Featured Categories *-->
     <div class="featured-categories">
         {% for category in featured_categories %}
             <h2 class="subtitle has-text-centered">{{category.title}}</h2>
-            <!--Iterating over featured products by using reusable html/django code-->
+            <!--Iterating over products by using reusable html/django code-->
             {% with category.products.all|slice:":4" as list_prods %}
                 {% include "parts/product_list.html" %}
             {% endwith %}
         {% endfor %}
     </div>
+
+    <hr>
+    <!--* Popular Products *-->
+    <h2 class="subtitle has-text-centered">Popular products</h2>
+    <!--Iterating over products by using reusable html/django code-->
+    {% with popular_products as list_prods %}
+        {% include "parts/product_list.html" %}
+    {% endwith %}
+
+    <hr>
+    <!--* Recently Viewed Products *-->
+    <h2 class="subtitle has-text-centered">Recently Viewed Products</h2>
+    <!--Iterating over products by using reusable html/django code-->
+    {% with recently_viewed_products as list_prods %}
+        {% include "parts/product_list.html" %}
+    {% endwith %}
 {% endblock %}

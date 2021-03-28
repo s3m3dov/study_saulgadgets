@@ -52,8 +52,8 @@
             {% for item in order.items.all %}
                 <tr class="item">
                     <td>
-                        {% if item.product.thumbnail.url %}
-                            <img src="http://127.0.0.1:8000{{ item.product.thumbnail.url }}" alt="item.product.title" width="40">
+                        {% if item.product.get_thumbnail %}
+                            <img src="http://127.0.0.1:8000{{ item.product.get_thumbnail }}" alt="item.product.title" width="40">
                         {% endif %}
                     </td>
                     <td>{{ item.product.title }}</td>
