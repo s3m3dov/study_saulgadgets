@@ -35,6 +35,7 @@ def cart_detail(request):
         'place': place,
         'pub_key': settings.STRIPE_API_KEY_PUBLISHABLE,
         'pub_key_razorpay': settings.RAZORPAY_API_KEY_PUBLISHABLE,
+        'pub_key_paypal': settings.PAYPAL_API_KEY_PUBLISHABLE,
         'productstring': productstring
     }
     return render(request, 'cart.html', context)

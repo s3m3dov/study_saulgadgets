@@ -1,9 +1,15 @@
+# Python & Django Imports
 import json, stripe, razorpay
 from django.http import JsonResponse, HttpResponse
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives
 from django.shortcuts import get_object_or_404, redirect
 
+# Paypal Imports
+from paypalcheckoutsdk.core import PayPalHttpClient, SandboxEnvironment
+from paypalcheckoutsdk.orders import OrdersCaptureRequest
+
+# Application Imports
 from apps.cart.cart import Cart
 from apps.order.utils import checkout
 from apps.order.views import render_to_pdf
@@ -73,6 +79,16 @@ def create_checkout_session(request):
             'quantity': item['quantity']
         }
         items.append(obj)
+
+    orderid = checkout(request, data['first_name'], data['last_name'], data['email'], data['address'], data['zipcode'], data['place'], data['phone'])
+
+    # * Price *
+    total_price = 0.00
+    for item in cart:
+        product = item['product']
+        total_price += (float(product.price) * int(item['quantity']))
+    if coupon_value > 0:
+        total_price *= coupon_value / 100
     
     # * Gateway Part *
     # Declare Variables (Get Gateway)
@@ -93,15 +109,6 @@ def create_checkout_session(request):
         )
         payment_intent = session.payment_intent
 
-    
-    # * Price *
-    total_price = 0.00
-    for item in cart:
-        product = item['product']
-        total_price += (float(product.price) * int(item['quantity']))
-    if coupon_value > 0:
-        total_price *= coupon_value / 100
-    
     # ? Razorpay ?
     if gateway == 'razorpay':
         order_amount = total_price * 100
@@ -111,21 +118,48 @@ def create_checkout_session(request):
             'amount': order_amount,
             'currency': order_currency
         }
+
         payment_intent = client.order.create(data=data)
 
+    # ? Paypal ?
+    if gateway == 'paypal':
+        order_id = data['order_id']
+        environment = SandboxEnvironment(client_id=settings.PAYPAL_API_KEY_PUBLISHABLE, client_secret=settings.PAYPAL_API_KEY_HIDDEN)
+        client = PayPalHttpClient(environment)
+
+        request = OrdersCaptureRequest(order_id)
+        response = client.execute(request)
+
+        order = Order.objects.get(pk=orderid)
+        order.paid_amount = total_price
+        order.used_coupon = coupon_code
+
+        # Validate
+        if response.result.status == 'COMPLETED':
+            order.paid = True
+            order.payment_intent = order_id
+            order.save()
+
+            decrement_product_quantity(order)
+            send_order_confirmation(order)
+        else:
+            order.paid = False
+            order.save()
+
     # * Create Order *
-    order_id = checkout(request, data['first_name'], data['last_name'], data['email'], data['address'], data['zipcode'], data['place'], data['phone'])
-    order = Order.objects.get(pk=order_id)
-    # Payment Intent 
-    if gateway == 'razorpay':
-        order.payment_intent = payment_intent['id']
     else:
-        order.payment_intent = payment_intent
-    order.paid_amount = cart.get_total_cost()
-    order.used_coupon = coupon_code
-    order.save()
-    cart.clear()
-    return JsonResponse({'session': session})
+        order = Order.objects.get(pk=orderid)
+        # Payment Intent 
+        if gateway == 'razorpay':
+            order.payment_intent = payment_intent['id']
+        else:
+            order.payment_intent = payment_intent
+        order.paid_amount = total_price
+        order.used_coupon = coupon_code
+        order.save()
+
+    #cart.clear()
+    return JsonResponse({'session': session, 'order': payment_intent})
 
 def api_add_to_cart(request):
     data = json.loads(request.body)
@@ -136,14 +170,12 @@ def api_add_to_cart(request):
 
     cart = Cart(request)
     product = get_object_or_404(Product, pk=product_id)
-    # Print request and product.name
-    print(product)
-    print(request.body)
 
     if not update:
         cart.add(product=product, quantity=1, update_quantity=False)
     else:
         cart.add(product=product, quantity=quantity, update_quantity=True)
+
     return JsonResponse(json_response)
 
 

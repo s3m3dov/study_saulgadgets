@@ -6,6 +6,11 @@ STRIPE_API_KEY_HIDDEN = "sk_test_51IWZgUHCGQv2kDWZhswpEMdIG9DQp1Ltz75zE4zYlWCc3W
 RAZORPAY_API_KEY_PUBLISHABLE = "rzp_test_z5vfzrbIZb9N3N"
 RAZORPAY_API_KEY_HIDDEN = "0HtDa3tlEGdPze0EyHWtr1GD"
 
+# Paypal Payment Keys
+PAYPAL_API_KEY_PUBLISHABLE = "Ad0V9pAQ_xXcRaifLNGIwg5Z4_GsJLHDsmx_GMWPO5pRLj8dab_SS2Ql9trG4n3vOwIwIS1WgTu6_yE1"
+PAYPAL_API_KEY_HIDDEN = "EAseIjrIpuotJR9i4nYBbWKqdJ1jhazMX2R7jFhjRqOvw31r3_7zBY4ucWN78lFLJAtdLhaccUepmNn6"
+
+
 # * ----------------------------------------- * #
 from pathlib import Path
 
